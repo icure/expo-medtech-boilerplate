@@ -1556,12 +1556,12 @@
   dependencies:
     "@hapi/hoek" "^9.0.0"
 
-"@icure/api@^8.0.27":
-  version "8.0.27"
-  resolved "http://127.0.0.1:4873/@icure/api/-/api-8.0.27.tgz#5224f343e1387b9f17e1c624708a5cbd8c911fe5"
-  integrity sha512-yRbsZUwNpAWEX7wlSd6O5UmW1gB1j85wnE5rJBAnJfo6lJQjswtJU2xmFijbhyHj2qubLraO1dpC7weJsXf0vw==
+"@icure/api@^8.0.28":
+  version "8.0.28"
+  resolved "http://127.0.0.1:4873/@icure/api/-/api-8.0.28.tgz#8fd3d976329e5a327c0cbd70d194a8be8026d498"
+  integrity sha512-JrDPfmAKxe9Wh5KU2J1/v+Ba3yFKQc4cyfnndlVDFdn8cGAxVSx+EyTU63Y905Nj4sxwl9nAhOM5cESK4CDfSA==
   dependencies:
-    browser-or-node "^2.1.1"
+    browser-or-node "^3.0.0"
     date-fns "^2.23.0"
     libphonenumber-js "^1.7.18"
     lodash "^4.17.21"
@@ -1570,12 +1570,12 @@
     uuid "^8.3.2"
     uuid-encoder "^1.1.0"
 
-"@icure/medical-device-sdk@3.2.2":
-  version "3.2.2"
-  resolved "http://127.0.0.1:4873/@icure/medical-device-sdk/-/medical-device-sdk-3.2.2.tgz#14946b8355e5ab3dbd8a10faa4d0c7f22ae1f3f0"
-  integrity sha512-3ezBCuqnkrJ9Tnu6TYhHZIGxv9YsqnChEVC6gPa7dC48exE8fY1dRdfzaPvuNAFRNPz6QgQ5TM8VbQhR6g6frg==
+"@icure/medical-device-sdk@3.2.3":
+  version "3.2.3"
+  resolved "http://127.0.0.1:4873/@icure/medical-device-sdk/-/medical-device-sdk-3.2.3.tgz#51b4bbacaa1f0a72b2e83f5ea8ef475c272142d1"
+  integrity sha512-lejXQbnf9ytQktxKJ/rThbcr49jNLJYFIkI7Po8ilX+H+ujT0c8vPb3TFoKOd5iwxHtgegXEoWUQGlvhaSMFyA==
   dependencies:
-    "@icure/typescript-common" "3.2.1"
+    "@icure/typescript-common" "3.2.2"
     browser-or-node "^2.1.1"
     date-fns "^2.30.0"
     es6-promise "^4.2.8"
@@ -1584,12 +1584,12 @@
     uuid "^9.0.1"
     ws "^8.16.0"
 
-"@icure/typescript-common@3.2.1":
-  version "3.2.1"
-  resolved "http://127.0.0.1:4873/@icure/typescript-common/-/typescript-common-3.2.1.tgz#5e455d41b4935b121015662aff8ec6e3401a135c"
-  integrity sha512-UbjNttfjYAjORbPwOiQfHiWzyMJfLfmYP9Q4uf3x4CyW76TVz1kDmXjaFzbiUqYL6u6uSqUmcguKHSFd8hsYTw==
+"@icure/typescript-common@3.2.2":
+  version "3.2.2"
+  resolved "http://127.0.0.1:4873/@icure/typescript-common/-/typescript-common-3.2.2.tgz#2fe7b25ad2f22f6ec9421dadb50386a47d8ecc0e"
+  integrity sha512-ocHGpVXBaDQ+a2IdQ2iBETBnr7wAo78QE2e4jOyUks3GHWcUCnCq/m/0TbsgNGEf3I3cRbPNwCRuO77wKXAzkw==
   dependencies:
-    "@icure/api" "^8.0.27"
+    "@icure/api" "^8.0.28"
     reflect-metadata "^0.2.2"
     uuid "^9.0.1"
 
@@ -2607,6 +2607,11 @@ browser-or-node@^2.1.1:
   version "2.1.1"
   resolved "http://127.0.0.1:4873/browser-or-node/-/browser-or-node-2.1.1.tgz#738790b3a86a8fc020193fa581273fbe65eaea0f"
   integrity sha512-8CVjaLJGuSKMVTxJ2DpBl5XnlNDiT4cQFeuCJJrvJmts9YrTZDizTX7PjC2s6W4x+MBGZeEY6dGMrF04/6Hgqg==
+
+browser-or-node@^3.0.0:
+  version "3.0.0"
+  resolved "http://127.0.0.1:4873/browser-or-node/-/browser-or-node-3.0.0.tgz#2b11335570b28887e0bf5cd857f2e8062c6ae293"
+  integrity sha512-iczIdVJzGEYhP5DqQxYM9Hh7Ztpqqi+CXZpSmX8ALFs9ecXkQIeqRyM6TfxEfMVpwhl3dSuDvxdzzo9sUOIVBQ==
 
 browserslist@^4.22.2, browserslist@^4.23.0:
   version "4.23.0"
@@ -3690,6 +3695,11 @@ ext-name@^5.0.0:
   dependencies:
     ext-list "^2.0.0"
     sort-keys-length "^1.0.0"
+
+fast-base64-decode@^1.0.0:
+  version "1.0.0"
+  resolved "http://127.0.0.1:4873/fast-base64-decode/-/fast-base64-decode-1.0.0.tgz#b434a0dd7d92b12b43f26819300d2dafb83ee418"
+  integrity sha512-qwaScUgUGBYeDNRnbc/KyllVU88Jk1pRHPStuF/lO7B0/RTRLj7U0lkdTAutlBblY08rwZDff6tNU9cjv6j//Q==
 
 fast-glob@^3.2.5, fast-glob@^3.2.9:
   version "3.3.2"
@@ -6106,6 +6116,13 @@ react-is@^17.0.1:
   version "17.0.2"
   resolved "http://127.0.0.1:4873/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
+
+react-native-get-random-values@^1.8.0:
+  version "1.11.0"
+  resolved "http://127.0.0.1:4873/react-native-get-random-values/-/react-native-get-random-values-1.11.0.tgz#1ca70d1271f4b08af92958803b89dccbda78728d"
+  integrity sha512-4BTbDbRmS7iPdhYLRcz3PGFIpFJBwNZg9g42iwa2P6FOv9vZj/xJc678RZXnLNZzd0qd7Q3CCF6Yd+CU2eoXKQ==
+  dependencies:
+    fast-base64-decode "^1.0.0"
 
 react-native-mmkv@^2.12.2:
   version "2.12.2"

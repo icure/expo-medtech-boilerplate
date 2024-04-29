@@ -8,6 +8,7 @@ import { setSavedCredentials } from '../config/state';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { Constants } from '../config/constants';
 import { AnonymousMedTechApi, AuthenticationProcess, MedTechApi, ua2b64, User, NativeCryptoPrimitivesBridge } from '@icure/medical-device-sdk';
+import { SimpleMedTechCryptoStrategies } from '@icure/medical-device-sdk/src/services/MedTechCryptoStrategies';
 
 export interface MedTechApiState {
     email?: string;
@@ -54,6 +55,7 @@ export const startAuthentication = createAsyncThunk('medTechApi/startAuthenticat
 
     const anonymousApi = await new AnonymousMedTechApi.Builder()
         .withCrypto(new NativeCryptoPrimitivesBridge(ExpoKryptomModule))
+        .withCryptoStrategies(new SimpleMedTechCryptoStrategies())
         .withMsgGwSpecId(Constants.EXTERNAL_SERVICES_SPEC_ID)
         .withAuthProcessByEmailId(Constants.EMAIL_AUTHENTICATION_PROCESS_ID)
         .withAuthProcessBySmsId(Constants.SMS_AUTHENTICATION_PROCESS_ID)
@@ -61,11 +63,18 @@ export const startAuthentication = createAsyncThunk('medTechApi/startAuthenticat
         .build();
 
     const captchaType = 'friendly-captcha';
-    const authProcess = await anonymousApi.authenticationApi.startAuthentication({ recaptcha: captcha!!, email, firstName, lastName, recaptchaType: captchaType});
 
-    apiCache[`${authProcess.login}/${authProcess.requestId}`] = anonymousApi;
+    let authProcess: AuthenticationProcess;
 
-    return authProcess;
+    try {
+        authProcess = await anonymousApi.authenticationApi.startAuthentication({ recaptcha: captcha!!, email, firstName, lastName, recaptchaType: captchaType});
+    } catch (e) {
+        console.error(`Couldn't start authentication: ${e}`)
+    }
+
+    apiCache[`${authProcess!!.login}/${authProcess!!.requestId}`] = anonymousApi;
+
+    return authProcess!!;
 });
 
 export const completeAuthentication = createAsyncThunk('medTechApi/completeAuthentication', async (_payload, { getState, dispatch }) => {
