@@ -60,6 +60,7 @@ export const startAuthentication = createAsyncThunk('medTechApi/startAuthenticat
         .withAuthProcessByEmailId(Constants.EMAIL_AUTHENTICATION_PROCESS_ID)
         .withAuthProcessBySmsId(Constants.SMS_AUTHENTICATION_PROCESS_ID)
         .withStorage(storage)
+        .withICureBaseUrl("https://api.icure.cloud")
         .build();
 
     const captchaType = 'friendly-captcha';

@@ -19,6 +19,11 @@ import {PersistGate} from 'redux-persist/integration/react';
 import {store, persistor} from './redux/store';
 import {Text} from 'react-native';
 
+import '@azure/core-asynciterator-polyfill'
+
+Buffer = require("buffer").Buffer;
+
+
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
 
