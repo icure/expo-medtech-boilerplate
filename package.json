@@ -20,7 +20,8 @@
     "react-native-webview": "13.8.6",
     "react-redux": "^8.0.5",
     "react-router-native": "^6.4.3",
-    "redux-persist": "^6.0.0"
+    "redux-persist": "^6.0.0",
+    "expo-kryptom": "0.5.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

@@ -3626,6 +3626,11 @@ expo-keep-awake@~12.8.2:
   resolved "http://127.0.0.1:4873/expo-keep-awake/-/expo-keep-awake-12.8.2.tgz#6cfdf8ad02b5fa130f99d4a1eb98e459d5b4332e"
   integrity sha512-uiQdGbSX24Pt8nGbnmBtrKq6xL/Tm3+DuDRGBk/3ZE/HlizzNosGRIufIMJ/4B4FRw4dw8KU81h2RLuTjbay6g==
 
+expo-kryptom@0.5.2:
+  version "0.5.2"
+  resolved "http://127.0.0.1:4873/expo-kryptom/-/expo-kryptom-0.5.2.tgz#ba53e7565064128e7ff786369835bc8d2896babc"
+  integrity sha512-F0FxzuaZYnDZTdARe3S/xc+QGpsSBMgh9rsenO4IFBgmYkFTFQDSjwwXVbNoQI2jELmugk0SCYA3ggMMSeNp5w==
+
 expo-modules-autolinking@1.10.3:
   version "1.10.3"
   resolved "http://127.0.0.1:4873/expo-modules-autolinking/-/expo-modules-autolinking-1.10.3.tgz#19f349884a90f3f27ec9d64e8f2fa6be609558c5"
