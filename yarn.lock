@@ -1561,10 +1561,10 @@
   dependencies:
     "@hapi/hoek" "^9.0.0"
 
-"@icure/api@^8.0.28":
-  version "8.0.28"
-  resolved "http://127.0.0.1:4873/@icure/api/-/api-8.0.28.tgz#8fd3d976329e5a327c0cbd70d194a8be8026d498"
-  integrity sha512-JrDPfmAKxe9Wh5KU2J1/v+Ba3yFKQc4cyfnndlVDFdn8cGAxVSx+EyTU63Y905Nj4sxwl9nAhOM5cESK4CDfSA==
+"@icure/api@^8.0.29":
+  version "8.0.29"
+  resolved "http://127.0.0.1:4873/@icure/api/-/api-8.0.29.tgz#3f1998d3a11e2849f220485dc217ff3f774386c2"
+  integrity sha512-GSvMEH8HecvYziisiAHYVxE5zYS3PrKoRynEZimDeBX5Pv0MDZiDvNlmn2MBJiGxo8KZra88YPfOYUHbVADWUA==
   dependencies:
     browser-or-node "^3.0.0"
     date-fns "^2.23.0"
@@ -1575,12 +1575,12 @@
     uuid "^8.3.2"
     uuid-encoder "^1.1.0"
 
-"@icure/medical-device-sdk@3.2.3":
-  version "3.2.3"
-  resolved "http://127.0.0.1:4873/@icure/medical-device-sdk/-/medical-device-sdk-3.2.3.tgz#51b4bbacaa1f0a72b2e83f5ea8ef475c272142d1"
-  integrity sha512-lejXQbnf9ytQktxKJ/rThbcr49jNLJYFIkI7Po8ilX+H+ujT0c8vPb3TFoKOd5iwxHtgegXEoWUQGlvhaSMFyA==
+"@icure/medical-device-sdk@3.2.4":
+  version "3.2.4"
+  resolved "http://127.0.0.1:4873/@icure/medical-device-sdk/-/medical-device-sdk-3.2.4.tgz#2922a31ffbf8c53d7cc685c7fc44b3e4a22462f0"
+  integrity sha512-JLQvAtg9Gu2OsaDtCFng8LvpSj6t8vQ2ynP7TNIhm4ILL6QUtNOaPYGtJmfMNA9TXBi1e25GI5cbTE2irgbzZA==
   dependencies:
-    "@icure/typescript-common" "3.2.2"
+    "@icure/typescript-common" "3.2.3"
     browser-or-node "^2.1.1"
     date-fns "^2.30.0"
     es6-promise "^4.2.8"
@@ -1589,12 +1589,12 @@
     uuid "^9.0.1"
     ws "^8.16.0"
 
-"@icure/typescript-common@3.2.2":
-  version "3.2.2"
-  resolved "http://127.0.0.1:4873/@icure/typescript-common/-/typescript-common-3.2.2.tgz#2fe7b25ad2f22f6ec9421dadb50386a47d8ecc0e"
-  integrity sha512-ocHGpVXBaDQ+a2IdQ2iBETBnr7wAo78QE2e4jOyUks3GHWcUCnCq/m/0TbsgNGEf3I3cRbPNwCRuO77wKXAzkw==
+"@icure/typescript-common@3.2.3":
+  version "3.2.3"
+  resolved "http://127.0.0.1:4873/@icure/typescript-common/-/typescript-common-3.2.3.tgz#b94354bc957007ef344dd8dd06f99680ee3f8d4d"
+  integrity sha512-R0gkWiMKVJoJMs2b73At3qXXiBjwy06VR/ow7hzqG3fIKf4R2NjIDHqQSRIlDwVx/k7/TkqJjbAbBiSfzi+q5A==
   dependencies:
-    "@icure/api" "^8.0.28"
+    "@icure/api" "^8.0.29"
     reflect-metadata "^0.2.2"
     uuid "^9.0.1"
 
@@ -2137,6 +2137,11 @@
   version "15.7.12"
   resolved "http://127.0.0.1:4873/@types/prop-types/-/prop-types-15.7.12.tgz#12bb1e2be27293c1406acb6af1c3f3a1481d98c6"
   integrity sha512-5zvhXYtRNRluoE/jAp4GVsSduVUzNWKkOZrCDBWYtE7biZywwdC2AcEzg+cSMLFRfVgeAFqpfNabiPjxFddV1Q==
+
+"@types/react-native-get-random-values@^1.8.2":
+  version "1.8.2"
+  resolved "http://127.0.0.1:4873/@types/react-native-get-random-values/-/react-native-get-random-values-1.8.2.tgz#31e325e1b9d41b8dfdf272f9ec4fc68013e4a2b0"
+  integrity sha512-CmtnfZnHKkVupG71SI9S7DDqkV6dtxxNIAzh2r1F1/tB8vg2weBtLhHmcruMIwp9Y69IZZ3DwJ0BhRpsbj42QA==
 
 "@types/react-redux@^7.1.24":
   version "7.1.33"
@@ -6122,7 +6127,7 @@ react-is@^17.0.1:
   resolved "http://127.0.0.1:4873/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
-react-native-get-random-values@^1.8.0:
+react-native-get-random-values@^1.11.0:
   version "1.11.0"
   resolved "http://127.0.0.1:4873/react-native-get-random-values/-/react-native-get-random-values-1.11.0.tgz#1ca70d1271f4b08af92958803b89dccbda78728d"
   integrity sha512-4BTbDbRmS7iPdhYLRcz3PGFIpFJBwNZg9g42iwa2P6FOv9vZj/xJc678RZXnLNZzd0qd7Q3CCF6Yd+CU2eoXKQ==
