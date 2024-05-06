@@ -1575,6 +1575,11 @@
     uuid "^8.3.2"
     uuid-encoder "^1.1.0"
 
+"@icure/expo-kryptom@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@icure/expo-kryptom/-/expo-kryptom-1.0.0.tgz#1d5b6e9ecde95a41dc844805607fb2f4c1f9e29e"
+  integrity sha512-2AFFfHpKQ7UjqAUiKnUcE5+qZ3s1O0AV+RFGPjjaMrUBF8wh6O9KezfToocpPSjv7iJNKZ6gi+9zPrIlrOlBnw==
+
 "@icure/medical-device-sdk@3.2.4":
   version "3.2.4"
   resolved "http://127.0.0.1:4873/@icure/medical-device-sdk/-/medical-device-sdk-3.2.4.tgz#2922a31ffbf8c53d7cc685c7fc44b3e4a22462f0"
@@ -2178,6 +2183,11 @@
   version "0.0.3"
   resolved "http://127.0.0.1:4873/@types/use-sync-external-store/-/use-sync-external-store-0.0.3.tgz#b6725d5f4af24ace33b36fafd295136e75509f43"
   integrity sha512-EwmlvuaxPNej9+T4v5AuBPJa2x2UOJVdjCtDHgcDqitUeOtjnJKJ+apYjVcAoBEMjKW1VVFGZLUb5+qqa09XFA==
+
+"@types/uuid@^9.0.8":
+  version "9.0.8"
+  resolved "http://127.0.0.1:4873/@types/uuid/-/uuid-9.0.8.tgz#7545ba4fc3c003d6c756f651f3bf163d8f0f29ba"
+  integrity sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA==
 
 "@types/yargs-parser@*":
   version "21.0.3"
@@ -3640,11 +3650,6 @@ expo-keep-awake@~12.8.2:
   version "12.8.2"
   resolved "http://127.0.0.1:4873/expo-keep-awake/-/expo-keep-awake-12.8.2.tgz#6cfdf8ad02b5fa130f99d4a1eb98e459d5b4332e"
   integrity sha512-uiQdGbSX24Pt8nGbnmBtrKq6xL/Tm3+DuDRGBk/3ZE/HlizzNosGRIufIMJ/4B4FRw4dw8KU81h2RLuTjbay6g==
-
-expo-kryptom@0.5.3:
-  version "0.5.3"
-  resolved "http://127.0.0.1:4873/expo-kryptom/-/expo-kryptom-0.5.3.tgz#0e87062023ac8515428a74606fac54d9a34dd06b"
-  integrity sha512-5pw8MUOkDvzcIP/ABB2MEOpdV8fsk7Cm5ar4+ytngRlwa9iC2enTzQOV6X8Oo4bs0Ww5atqg4ItkuxjafOt/zA==
 
 expo-modules-autolinking@1.10.3:
   version "1.10.3"

@@ -1,10 +1,28 @@
-import React from 'react';
-import {ScrollView, StyleSheet, Image, View, Text, Linking} from 'react-native';
+import React, { useCallback } from 'react';
+import {ScrollView, StyleSheet, Image, View, Text, Linking, Button} from 'react-native';
+import { useCreateOrUpdatePatientMutation } from '../services/patientApi';
+import { Patient } from '@icure/medical-device-sdk';
+import { v4 as uuidv4 } from 'uuid';
+
 
 export const Home = () => {
   const openDoc = () => {
     Linking.openURL('https://docs.icure.com/sdks/how-to/index');
   };
+
+  const [createOrUpdatePatient] = useCreateOrUpdatePatientMutation();
+
+  const createRandomPatient = useCallback(async () => {
+    const createdPatient = await createOrUpdatePatient(
+      new Patient({
+        id: uuidv4(),
+        firstName: 'John',
+        lastName: 'Doe',
+      })
+    );
+
+    console.log(createdPatient);
+  }, []);
 
   return (
     <ScrollView style={styles.homeScreen}>
@@ -14,6 +32,7 @@ export const Home = () => {
         <Text style={styles.paraph}>If you arrived here, it means you completed your registration / login successfully.
         Time to head to <Text style={{ textDecorationLine: 'underline' }} onPress={openDoc}>iCure Documentation</Text> to add some data ! </Text>
       </View>
+      <Button title="Create a random patient" onPress={createRandomPatient} />
     </ScrollView>
   );
 };

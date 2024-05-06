@@ -12,7 +12,6 @@ import React from 'react';
 import {ScrollView, StatusBar, useColorScheme} from 'react-native';
 
 import {Router} from './navigation/Router';
-import 'react-native-get-random-values';
 
 import {Provider} from 'react-redux';
 import {PersistGate} from 'redux-persist/integration/react';
@@ -20,9 +19,6 @@ import {store, persistor} from './redux/store';
 import {Text} from 'react-native';
 
 import '@azure/core-asynciterator-polyfill'
-
-Buffer = require("buffer").Buffer;
-
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';

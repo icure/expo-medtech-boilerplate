@@ -1,13 +1,13 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import * as ExpoKryptomModule from 'expo-kryptom';
+import * as ExpoKryptomModule from '@icure/expo-kryptom';
 
 import storage from '../utils/storage';
 import { setSavedCredentials } from '../config/state';
 
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { Constants } from '../config/constants';
-import { AnonymousMedTechApi, AuthenticationProcess, MedTechApi, ua2b64, User, NativeCryptoPrimitivesBridge } from '@icure/medical-device-sdk';
+import { AnonymousMedTechApi, AuthenticationProcess, MedTechApi, ua2b64, User, NativeCryptoPrimitivesBridge, Patient } from '@icure/medical-device-sdk';
 import { SimpleMedTechCryptoStrategies } from '@icure/medical-device-sdk/src/services/MedTechCryptoStrategies';
 
 export interface MedTechApiState {
@@ -185,12 +185,15 @@ export const api = createSlice({
 });
 
 export const guard = async <T>(guardedInputs: unknown[], lambda: () => Promise<T>): Promise<{error: FetchBaseQueryError} | {data: T}> => {
+    console.log('guardedInputs', guardedInputs);
     if (guardedInputs.some(x => !x)) {
       return {data: undefined};
     }
     try {
       const res = await lambda();
+      console.log('res', res);
       const curate = (result: T): T => {
+        console.log('result', result);
         return (
           result === null || result === undefined
             ? null
@@ -198,13 +201,16 @@ export const guard = async <T>(guardedInputs: unknown[], lambda: () => Promise<T
             ? ua2b64(res)
             : Array.isArray(result)
             ? result.map(curate)
-            : typeof result === 'object'
-            ? (result as any).marshal()
+            : result instanceof Patient
+            ? Patient.toJSON(result)
             : result
         ) as T;
       };
-      return {data: curate(res)};
+      const curated = curate(res);
+        console.log('curated', curated);
+      return {data: curated};
     } catch (e) {
+        console.error('Error', e);
       return {error: getError(e as Error)};
     }
 };
