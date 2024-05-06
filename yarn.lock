@@ -1580,12 +1580,12 @@
   resolved "https://registry.yarnpkg.com/@icure/expo-kryptom/-/expo-kryptom-1.0.0.tgz#1d5b6e9ecde95a41dc844805607fb2f4c1f9e29e"
   integrity sha512-2AFFfHpKQ7UjqAUiKnUcE5+qZ3s1O0AV+RFGPjjaMrUBF8wh6O9KezfToocpPSjv7iJNKZ6gi+9zPrIlrOlBnw==
 
-"@icure/medical-device-sdk@3.2.4":
-  version "3.2.4"
-  resolved "http://127.0.0.1:4873/@icure/medical-device-sdk/-/medical-device-sdk-3.2.4.tgz#2922a31ffbf8c53d7cc685c7fc44b3e4a22462f0"
-  integrity sha512-JLQvAtg9Gu2OsaDtCFng8LvpSj6t8vQ2ynP7TNIhm4ILL6QUtNOaPYGtJmfMNA9TXBi1e25GI5cbTE2irgbzZA==
+"@icure/medical-device-sdk@3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@icure/medical-device-sdk/-/medical-device-sdk-3.2.0.tgz#b1258a525a6787ae21f8377a23d4415af2791a49"
+  integrity sha512-poy+P5FcxNLwu+oIT7k/pNblyAH08FsBkU+Qe2T+m/v4Up1aaSz8NS44M9YixQunOYYPV5hcBJP6jufASSwhxQ==
   dependencies:
-    "@icure/typescript-common" "3.2.3"
+    "@icure/typescript-common" "3.2.0"
     browser-or-node "^2.1.1"
     date-fns "^2.30.0"
     es6-promise "^4.2.8"
@@ -1594,10 +1594,10 @@
     uuid "^9.0.1"
     ws "^8.16.0"
 
-"@icure/typescript-common@3.2.3":
-  version "3.2.3"
-  resolved "http://127.0.0.1:4873/@icure/typescript-common/-/typescript-common-3.2.3.tgz#b94354bc957007ef344dd8dd06f99680ee3f8d4d"
-  integrity sha512-R0gkWiMKVJoJMs2b73At3qXXiBjwy06VR/ow7hzqG3fIKf4R2NjIDHqQSRIlDwVx/k7/TkqJjbAbBiSfzi+q5A==
+"@icure/typescript-common@3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@icure/typescript-common/-/typescript-common-3.2.0.tgz#b7bb15a7980c64d3f57f3c06f445e72e5ce1650b"
+  integrity sha512-7AwwNY7CciVUt621jf+jDZ/5fhyIyovpaU5zUxVO5i0wGHKxLiZA/0Nz+f6Xhkfnai+gipcYgm8hSdSR/GUF5Q==
   dependencies:
     "@icure/api" "^8.0.29"
     reflect-metadata "^0.2.2"

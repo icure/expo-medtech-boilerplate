@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@azure/core-asynciterator-polyfill": "^1.0.2",
-    "@icure/medical-device-sdk": "3.2.4",
+    "@icure/medical-device-sdk": "3.2.0",
     "@reduxjs/toolkit": "^1.9.0",
     "expo": "~50.0.14",
     "@icure/expo-kryptom": "1.0.0",
