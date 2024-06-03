@@ -8,7 +8,6 @@ import { routes } from '../navigation/routes';
 
 import { useAppSelector, useAppDispatch } from '../redux/hooks';
 import { setToken, login, setEmail, completeAuthentication, startAuthentication, setCaptcha } from '../services/api';
-import { Constants } from '../config/constants';
 import { FriendlyCaptchaComponent } from '../components/FriendlyCaptcha';
 
 
@@ -75,7 +74,7 @@ export const Login = () => {
           {errors.userEmail && <ErrorMessage text="This field is required." />}
           
           <View style={styles.webviewContainer}>
-            <FriendlyCaptchaComponent sitekey={Constants.FRIENDLY_CAPTCHA_SITE_KEY} onFinish={value => dispatch(setCaptcha({captcha: value}))} />
+            <FriendlyCaptchaComponent sitekey={process.env.EXPO_PUBLIC_FRIENDLY_CAPTCHA_SITE_KEY!!} onFinish={value => dispatch(setCaptcha({captcha: value}))} />
           </View>
 
           {isWaitingForCode ? (

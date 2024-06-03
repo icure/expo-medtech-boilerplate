@@ -16,9 +16,15 @@ import {Router} from './navigation/Router';
 import {Provider} from 'react-redux';
 import {PersistGate} from 'redux-persist/integration/react';
 import {store, persistor} from './redux/store';
-import {Text} from 'react-native';
+import {Text} from 'react-native'
+
+import { polyfillWindowCryptoWithStrongRandom } from '@icure/expo-kryptom'
+
+Buffer = require("@craftzdog/react-native-buffer").Buffer;
 
 import '@azure/core-asynciterator-polyfill'
+
+polyfillWindowCryptoWithStrongRandom()
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';

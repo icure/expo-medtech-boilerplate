@@ -9,7 +9,6 @@ import { routes } from '../navigation/routes';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import {completeAuthentication, setCaptcha, setRegistrationInformation, setToken, startAuthentication} from '../services/api';
 import { FriendlyCaptchaComponent } from '../components/FriendlyCaptcha';
-import { Constants } from '../config/constants';
 
 
 export const Register = (): JSX.Element => {
@@ -89,7 +88,7 @@ export const Register = (): JSX.Element => {
           {errors.userEmail && <ErrorMessage text="This field is required." />}
           
           <View style={styles.webviewContainer}>
-            <FriendlyCaptchaComponent sitekey={Constants.FRIENDLY_CAPTCHA_SITE_KEY} onFinish={value => dispatch(setCaptcha({captcha: value}))} />
+            <FriendlyCaptchaComponent sitekey={process.env.EXPO_PUBLIC_FRIENDLY_CAPTCHA_SITE_KEY!!} onFinish={value => dispatch(setCaptcha({captcha: value}))} />
           </View>
 
           {isWaitingForCode ? (

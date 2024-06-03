@@ -18,8 +18,10 @@ export const FriendlyCaptchaComponent = ({sitekey, onFinish}: FriendlyCaptchaCom
               <head>
                 <meta charset="utf-8">
                 <title>Friendly Captcha Verification</title>
-                <script type="module" src="https://cdn.jsdelivr.net/npm/friendly-challenge@0.9.11/widget.module.min.js"></script>
-                <script nomodule src="https://cdn.jsdelivr.net/npm/friendly-challenge@0.9.11/widget.min.js"></script>
+
+                <script type="module" src="https://cdn.jsdelivr.net/npm/friendly-challenge@0.9.14/widget.module.min.js" async defer></script>
+                <script nomodule src="https://cdn.jsdelivr.net/npm/friendly-challenge@0.9.14/widget.min.js" async defer></script>
+
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <style>
                     html, body {
@@ -34,9 +36,13 @@ export const FriendlyCaptchaComponent = ({sitekey, onFinish}: FriendlyCaptchaCom
                 </style>
               </head>
               <body>
-                <div class="frc-captcha" data-start="auto" data-sitekey=${sitekey} data-callback="doneCallback" data-lang="en"></div>
+                <div class="frc-captcha" data-start="auto" data-sitekey="${sitekey}" data-callback="doneCallback" data-lang="en"></div>
                 <script>
-                  function doneCallback(solution) { ReactNativeWebView.postMessage(solution) }
+                console.log('script works')
+                  function doneCallback(solution) { 
+                    console.log('test')
+                    ReactNativeWebView.postMessage(solution)
+                  }
                 </script>
               </body>
             </html>
