@@ -49,3 +49,5 @@ scratch
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+.scratch

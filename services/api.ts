@@ -1,28 +1,35 @@
-import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {createAction, createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 
-import * as ExpoKryptomModule from '@icure/expo-kryptom';
+import {
+	Aes,
+	Rsa,
+	Hmac,
+	StrongRandom,
+	Digest
+} from '@icure/expo-kryptom';
 
-import storage from '../utils/storage';
+
 import {setSavedCredentials} from '../config/state';
 
 import {FetchBaseQueryError} from '@reduxjs/toolkit/query';
-import {
-	AnonymousMedTechApi,
-	AuthenticationProcess,
-	MedTechApi,
-	NativeCryptoPrimitivesBridge,
-	Patient,
-	ua2b64,
-	User
-} from '@icure/medical-device-sdk';
-import {SimpleMedTechCryptoStrategies} from '@icure/medical-device-sdk/src/services/MedTechCryptoStrategies';
 
-export interface MedTechApiState {
+import {
+	AuthenticationMethod,
+	AuthenticationProcessTelecomType,
+	CaptchaOptions,
+	CardinalSdk, Challenge,
+	User
+} from "@icure/cardinal-sdk";
+import AuthenticationWithProcessStep = CardinalSdk.AuthenticationWithProcessStep;
+import {polyfillFetch} from "../polyfills/FetchPolyfill";
+import {resolveChallenge, Solution} from "@icure/expo-kerberus";
+import {AsyncStorageImpl} from "../utils/storage";
+
+export interface CardinalSdkState {
 	email?: string;
 	token?: string;
 	user?: User;
 	keyPair?: { publicKey: string; privateKey: string };
-	authProcess?: AuthenticationProcess;
 	online: boolean;
 	invalidEmail: boolean;
 	invalidToken: boolean;
@@ -30,15 +37,14 @@ export interface MedTechApiState {
 	lastName?: string;
 	dateOfBirth?: number;
 	mobilePhone?: string;
-	captcha?: string;
+	kerberusProgress: number;
 }
 
-const initialState: MedTechApiState = {
+const initialState: CardinalSdkState = {
 	email: undefined,
 	token: undefined,
 	user: undefined,
 	keyPair: undefined,
-	authProcess: undefined,
 	online: false,
 	invalidEmail: false,
 	invalidToken: false,
@@ -46,62 +52,93 @@ const initialState: MedTechApiState = {
 	lastName: undefined,
 	dateOfBirth: undefined,
 	mobilePhone: undefined,
-	captcha: undefined,
+	kerberusProgress: 0,
 };
 
-const apiCache: { [key: string]: MedTechApi | AnonymousMedTechApi } = {};
+let authProcess: AuthenticationWithProcessStep | undefined = undefined;
+const apiCache: Record<string, CardinalSdk> = {};
 
-export const startAuthentication = createAsyncThunk('medTechApi/startAuthentication', async (_payload, {getState}) => {
+const onKerberusProgress = createAction<number>('cardinalApi/onProgress');
+
+export const startAuthentication = createAsyncThunk('cardinalApi/startAuthentication', async (_payload, {getState, dispatch}) => {
 	const {
-		medTechApi: {email, firstName, lastName, captcha},
-	} = getState() as { medTechApi: MedTechApiState };
+		cardinalApi: {email, firstName, lastName},
+	} = getState() as { cardinalApi: CardinalSdkState };
 
 	if (!email) {
 		throw new Error('No email provided');
 	}
 
-	const anonymousApiBuilder = new AnonymousMedTechApi.Builder()
-		.withCrypto(new NativeCryptoPrimitivesBridge(ExpoKryptomModule))
-		.withCryptoStrategies(new SimpleMedTechCryptoStrategies())
-		.withMsgGwSpecId(process.env.EXPO_PUBLIC_EXTERNAL_SERVICES_SPEC_ID!!)
-		.withAuthProcessByEmailId(process.env.EXPO_PUBLIC_EMAIL_AUTHENTICATION_PROCESS_ID!!)
-		.withAuthProcessBySmsId(process.env.EXPO_PUBLIC_SMS_AUTHENTICATION_PROCESS_ID!!)
-		.withStorage(storage)
+	polyfillFetch()
 
-		if (process.env.EXPO_PUBLIC_API_URL) {
-			anonymousApiBuilder.withICureBaseUrl(process.env.EXPO_PUBLIC_API_URL);
-		}
-
-	const anonymousApi = await anonymousApiBuilder.build();
-
-	const captchaType = 'friendly-captcha';
-
-	let authProcess: AuthenticationProcess;
+	let solution: Solution;
 
 	try {
-		authProcess = await anonymousApi.authenticationApi.startAuthentication({
-			recaptcha: captcha!!,
-			email,
-			firstName,
-			lastName,
-			recaptchaType: captchaType
+		const response = await fetch(`https://msg-gw.icure.cloud/${process.env.EXPO_PUBLIC_EXTERNAL_SERVICES_SPEC_ID}/challenge`, {
+			method: 'GET',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json',
+			}
 		});
+
+		const challenge: Challenge = JSON.parse(await response.text());
+		console.log(challenge)
+
+		solution = await resolveChallenge(challenge, process.env.EXPO_PUBLIC_EXTERNAL_SERVICES_SPEC_ID!!);
 	} catch (e) {
-		console.error(`Couldn't start authentication: ${e}`)
+		console.error(`Couldn't get challenge: ${e}`)
+		throw e;
 	}
 
-	apiCache[`${authProcess!!.login}/${authProcess!!.requestId}`] = anonymousApi;
+	try {
+		const authenticationStep = await CardinalSdk.initializeWithProcess(
+			undefined,
+			"https://api.icure.cloud",
+			"https://msg-gw.icure.cloud",
+			process.env.EXPO_PUBLIC_EXTERNAL_SERVICES_SPEC_ID!!,
+			process.env.EXPO_PUBLIC_EMAIL_AUTHENTICATION_PROCESS_ID!!,
+			AuthenticationProcessTelecomType.Email,
+			email,
+			// new CaptchaOptions.Kerberus.Delegated({ onProgress: (progress) => dispatch(onKerberusProgress(progress)) }),
+			new CaptchaOptions.Kerberus.Computed({solution}),
+			new AsyncStorageImpl(),
+			{
+				firstName,
+				lastName
+			},
+			{
+				encryptedFields: {
+					patient: ["notes", "addresses"]
+				},
+				cryptoService: {
+					aes: Aes,
+					digest: Digest,
+					hmac: Hmac,
+					rsa: Rsa,
+					strongRandom: StrongRandom
+				} as any
+			}
+		)
 
-	return authProcess!!;
+		authProcess = authenticationStep
+
+		return authenticationStep;
+	}
+	catch (e) {
+		console.error(`Couldn't start authentication: ${e}`)
+		throw e;
+	}
+
 });
 
-export const completeAuthentication = createAsyncThunk('medTechApi/completeAuthentication', async (_payload, {
+export const completeAuthentication = createAsyncThunk('cardinalApi/completeAuthentication', async (_payload, {
 	getState,
 	dispatch
 }) => {
 	const {
-		medTechApi: {authProcess, token},
-	} = getState() as { medTechApi: MedTechApiState };
+		cardinalApi: {token},
+	} = getState() as { cardinalApi: CardinalSdkState };
 
 	if (!authProcess) {
 		throw new Error('No authProcess provided');
@@ -111,32 +148,38 @@ export const completeAuthentication = createAsyncThunk('medTechApi/completeAuthe
 		throw new Error('No token provided');
 	}
 
-	const anonymousApi = apiCache[`${authProcess.login}/${authProcess.requestId}`] as AnonymousMedTechApi;
 	try {
-		const result = await anonymousApi.authenticationApi.completeAuthentication(authProcess, token);
-		const api = result.medTechApi;
-		const user = await api.userApi.getLoggedUser();
+		const sdk = await authProcess.completeAuthentication(token);
+		const currentUser = await sdk.user.getCurrentUser();
 
-		apiCache[`${result.groupId}/${result.userId}`] = api;
-		delete apiCache[`${authProcess.login}/${authProcess.requestId}`];
+		authProcess = undefined;
+		apiCache[`${currentUser.groupId}/${currentUser.id}`] = sdk;
+
+		const longToken = await sdk.user.getToken(
+			currentUser.id,
+			'boilerplate-cardinal-sdk',
+			{
+				tokenValidity: 30 * 24 * 60 * 60
+			}
+		);
 
 		dispatch(setSavedCredentials({
-			login: `${result.groupId}/${result.userId}`,
-			token: result.token,
+			login: `${currentUser.groupId}/${currentUser.id}`,
+			token: longToken,
 			tokenTimestamp: +Date.now()
 		}));
 
-		return user != null ? User.toJSON(user) : undefined;
+		return currentUser;
 	} catch (e) {
 		console.error(`Couldn't complete authentication: ${e}`)
 		throw e;
 	}
 });
 
-export const login = createAsyncThunk('medTechApi/login', async (_, {getState}) => {
+export const login = createAsyncThunk('cardinalApi/login', async (_, {getState}) => {
 	const {
-		medTechApi: {email, token},
-	} = getState() as { medTechApi: MedTechApiState };
+		cardinalApi: {email, token},
+	} = getState() as { cardinalApi: CardinalSdkState };
 
 	if (!email) {
 		throw new Error('No email provided');
@@ -146,30 +189,34 @@ export const login = createAsyncThunk('medTechApi/login', async (_, {getState}) 
 		throw new Error('No token provided');
 	}
 
-	const apiBuilder = new MedTechApi.Builder()
-		.withCrypto(new NativeCryptoPrimitivesBridge(ExpoKryptomModule))
-		.withCryptoStrategies(new SimpleMedTechCryptoStrategies())
-		.withStorage(storage)
-		.withMsgGwSpecId(process.env.EXPO_PUBLIC_EXTERNAL_SERVICES_SPEC_ID!!)
-		.withAuthProcessByEmailId(process.env.EXPO_PUBLIC_EMAIL_AUTHENTICATION_PROCESS_ID!!)
-		.withAuthProcessBySmsId(process.env.EXPO_PUBLIC_SMS_AUTHENTICATION_PROCESS_ID!!)
-		.withUserName(email)
-		.withPassword(token)
+	const api = await CardinalSdk.initialize(
+		undefined,
+		"https://api.icure.cloud",
+		new AuthenticationMethod.UsingCredentials.UsernameLongToken(email, token),
+		new AsyncStorageImpl(),
+		{
+			encryptedFields: {
+				patient: ["notes", "addresses"]
+			},
+			cryptoService: {
+				aes: Aes,
+				digest: Digest,
+				hmac: Hmac,
+				rsa: Rsa,
+				strongRandom: StrongRandom
+			} as any
+		}
+	)
 
-	if (process.env.EXPO_PUBLIC_API_URL) {
-		apiBuilder.withICureBaseUrl(process.env.EXPO_PUBLIC_API_URL);
-	}
-
-	const api = await apiBuilder.build();
-	const user = await api.userApi.getLoggedUser();
+	const user = await api.user.getCurrentUser();
 
 	apiCache[`${user.groupId}/${user.id}`] = api;
 
-	return User.toJSON(user);
+	return user;
 });
 
 export const api = createSlice({
-	name: 'medTechApi',
+	name: 'cardinalApi',
 	initialState,
 	reducers: {
 		setRegistrationInformation: (state, {payload: {firstName, lastName, email}}: PayloadAction<{
@@ -189,13 +236,13 @@ export const api = createSlice({
 			state.email = email;
 			state.invalidEmail = false;
 		},
-		setCaptcha: (state, {payload: {captcha}}: PayloadAction<{ captcha: string }>) => {
-			state.captcha = captcha;
-		},
 	},
 	extraReducers: builder => {
+		builder.addCase(onKerberusProgress, (state, action) => {
+			state.kerberusProgress = action.payload;
+		})
 		builder.addCase(startAuthentication.fulfilled, (state, {payload: authProcess}) => {
-			state.authProcess = authProcess;
+
 		});
 		builder.addCase(startAuthentication.rejected, (state, {}) => {
 			state.invalidEmail = true;
@@ -218,70 +265,37 @@ export const api = createSlice({
 	},
 });
 
-export const guard = async <T>(guardedInputs: unknown[], lambda: () => Promise<T>): Promise<{
-	error: FetchBaseQueryError
-} | { data: T }> => {
-	console.log('guardedInputs', guardedInputs);
-	if (guardedInputs.some(x => !x)) {
-		return {data: undefined};
-	}
-	try {
-		const res = await lambda();
-		console.log('res', res);
-		const curate = (result: T): T => {
-			console.log('result', result);
-			return (
-				result === null || result === undefined
-					? null
-					: res instanceof ArrayBuffer
-						? ua2b64(res)
-						: Array.isArray(result)
-							? result.map(curate)
-							: result instanceof Patient
-								? Patient.toJSON(result)
-								: result
-			) as T;
-		};
-		const curated = curate(res);
-		console.log('curated', curated);
-		return {data: curated};
-	} catch (e) {
-		console.error('Error', e);
-		return {error: getError(e as Error)};
-	}
-};
-
 function getError(e: Error): FetchBaseQueryError {
 	return {status: 'CUSTOM_ERROR', error: e.message, data: undefined};
 }
 
-export const getApiFromState = async (getState: () => MedTechApiState | {
-	medTechApi: MedTechApiState
-} | undefined): Promise<MedTechApi | undefined> => {
+export const getApiFromState = async (getState: () => CardinalSdkState | {
+	cardinalApi: CardinalSdkState
+} | undefined): Promise<CardinalSdk | undefined> => {
 	const state = getState();
 	if (!state) {
 		throw new Error('No state found');
 	}
-	const medTechApiState = 'medTechApi' in state ? state.medTechApi : state;
-	const {user} = medTechApiState;
+	const cardinalApiState = 'cardinalApi' in state ? state.cardinalApi : state;
+	const {user} = cardinalApiState;
 
 	if (!user) {
 		return undefined;
 	}
 
-	const cachedApi = apiCache[`${user.groupId}/${user.id}`] as MedTechApi;
+	const cachedApi = apiCache[`${user.groupId}/${user.id}`];
 
 	return cachedApi;
 };
 
 export const currentUser = (getState: () => unknown) => {
-	const state = getState() as { medTechApi: MedTechApiState };
-	return state.medTechApi.user;
+	const state = getState() as { cardinalApi: CardinalSdkState };
+	return state.cardinalApi.user;
 };
 
-export const medTechApi = async (getState: () => unknown) => {
-	const state = getState() as { medTechApi: MedTechApiState };
+export const cardinalApi = async (getState: () => unknown) => {
+	const state = getState() as { cardinalApi: CardinalSdkState };
 	return await getApiFromState(() => state);
 };
 
-export const {setRegistrationInformation, setToken, setEmail, setCaptcha} = api.actions;
+export const {setRegistrationInformation, setToken, setEmail} = api.actions;

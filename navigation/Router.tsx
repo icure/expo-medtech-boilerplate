@@ -12,8 +12,8 @@ export const Router = () => (
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index path={routes.login} element={<Login />} />
-        <Route index path={routes.register} element={<Register />} />
-        <Route index path={routes.home} element={<Home />} />
+        <Route path={routes.register} element={<Register />} />
+        <Route path={routes.home} element={<Home />} />
       </Route>
     </Routes>
   </NativeRouter>

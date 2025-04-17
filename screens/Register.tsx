@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Image, Text, StyleSheet, ScrollView} from 'react-native';
+import {View, Image, StyleSheet, ScrollView, Text} from 'react-native';
 import {useForm, Controller} from 'react-hook-form';
 
 import {RoundedInput, RoundedButton, TextHelper, ErrorMessage} from '../components/FormElements';
@@ -7,8 +7,8 @@ import {useNavigate} from 'react-router-native';
 import { routes } from '../navigation/routes';
 
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import {completeAuthentication, setCaptcha, setRegistrationInformation, setToken, startAuthentication} from '../services/api';
-import { FriendlyCaptchaComponent } from '../components/FriendlyCaptcha';
+import {completeAuthentication, setRegistrationInformation, setToken, startAuthentication} from '../services/api';
+import {addProgressListener} from "@icure/expo-kerberus";
 
 
 export const Register = (): JSX.Element => {
@@ -24,11 +24,22 @@ export const Register = (): JSX.Element => {
       userCode: '',
     },
   });
+  const [progress, setProgress] = useState<number>(0);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const {online} = useAppSelector(state => ({
-    ...state.medTechApi,
+  const {online, kerberusProgress} = useAppSelector(state => ({
+    ...state.cardinalApi,
   }));
+
+
+  useEffect(() => {
+    const subscription = addProgressListener(({ progress }) => {
+      setProgress(progress);
+    });
+
+    return () => subscription.remove();
+  }, [setProgress]);
+
 
   useEffect(() => {
     if (online) {
@@ -58,6 +69,7 @@ export const Register = (): JSX.Element => {
     <ScrollView style={styles.registerScreen}>
       <View style={styles.contentHolder}>
         <Image style={styles.logo} source={require('../assets/images/logo.png')} />
+        <Text>{progress}</Text>
         <View style={styles.inputsContainer}>
           <Controller
             control={control}
@@ -86,10 +98,6 @@ export const Register = (): JSX.Element => {
             name="userEmail"
           />
           {errors.userEmail && <ErrorMessage text="This field is required." />}
-          
-          <View style={styles.webviewContainer}>
-            <FriendlyCaptchaComponent sitekey={process.env.EXPO_PUBLIC_FRIENDLY_CAPTCHA_SITE_KEY!!} onFinish={value => dispatch(setCaptcha({captcha: value}))} />
-          </View>
 
           {isWaitingForCode ? (
             <>

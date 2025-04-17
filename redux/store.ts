@@ -1,16 +1,20 @@
 import {configureStore} from '@reduxjs/toolkit';
-import {persistedReducer} from './reducer';
-import {persistStore} from 'redux-persist';
 import { patientApiRtk } from '../services/patientApi';
+import {setupListeners} from "@reduxjs/toolkit/query";
+import {api} from "../services/api";
 
 export const store = configureStore({
-  reducer: persistedReducer,
+  reducer: {
+      [api.reducerPath]: api.reducer,
+      [patientApiRtk.reducerPath]: patientApiRtk.reducer
+  },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({serializableCheck: false, immutableCheck: false})
         .concat(
           patientApiRtk.middleware,
         ),
 });
-export const persistor = persistStore(store);
+
+setupListeners(store.dispatch)
 
 export type AppDispatch = typeof store.dispatch;

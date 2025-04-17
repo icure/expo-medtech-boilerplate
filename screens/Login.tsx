@@ -7,9 +7,7 @@ import {RoundedInput, RoundedButton, TextHelper, ErrorMessage} from '../componen
 import { routes } from '../navigation/routes';
 
 import { useAppSelector, useAppDispatch } from '../redux/hooks';
-import { setToken, login, setEmail, completeAuthentication, startAuthentication, setCaptcha } from '../services/api';
-import { FriendlyCaptchaComponent } from '../components/FriendlyCaptcha';
-
+import { setToken, login, setEmail, completeAuthentication, startAuthentication } from '../services/api';
 
 export const Login = () => {
   const [isWaitingForCode, setWaitingForCode] = useState(false);
@@ -24,7 +22,7 @@ export const Login = () => {
     },
   });
   const {online, lsUsername, lsToken} = useAppSelector(state => ({
-    ...state.medTechApi,
+    ...state.cardinalApi,
     lsUsername: state.icure?.savedCredentials?.login,
     lsToken: state.icure?.savedCredentials?.token,
   }));
@@ -72,10 +70,6 @@ export const Login = () => {
             name="userEmail"
           />
           {errors.userEmail && <ErrorMessage text="This field is required." />}
-          
-          <View style={styles.webviewContainer}>
-            <FriendlyCaptchaComponent sitekey={process.env.EXPO_PUBLIC_FRIENDLY_CAPTCHA_SITE_KEY!!} onFinish={value => dispatch(setCaptcha({captcha: value}))} />
-          </View>
 
           {isWaitingForCode ? (
             <>
