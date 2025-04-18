@@ -1,0 +1,27 @@
+{
+  "cli": {
+    "version": ">= 0.52.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "ANDROID_HOME": "/Users/clementvandendaelen/Library/Android/sdk",
+        "EXPO_PUBLIC_EXTERNAL_SERVICES_SPEC_ID": "SPEC_ID",
+        "EXPO_PUBLIC_EMAIL_AUTHENTICATION_PROCESS_ID": "PROCESS_ID"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
