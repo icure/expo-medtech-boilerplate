@@ -39,7 +39,7 @@ Make sure the following tools are installed on your machine:
 - **Android Studio**
 
 > [!IMPORTANT]
-> Ensure your Android emulator has at least 5GB of RAM to accommodate increased memory usage while running in debug mode
+> Ensure your Android emulator has at least 6GB of RAM to accommodate increased memory usage while running in debug mode
 > with Expo and React Native tooling.
 
 *Note: XCode and Android Studio are needed in order to run your app on iPhone & Android emulators*
