@@ -37,6 +37,7 @@ Make sure the following tools are installed on your machine:
 - **Ruby**, same version than referenced in the `.ruby-version` file at the root of the template. 
 - **XCode**
 - **Android Studio**
+- **Android emulator/device with at least 6GB of RAM** (if you want to run the app on Android emulator) (see [Troubleshooting](#app-crashes-at-startup-on-android) for more details)
 
 *Note: XCode and Android Studio are needed in order to run your app on iPhone & Android emulators*
 
@@ -60,3 +61,12 @@ This template also includes the implementation of the [iCure authentication flow
 
 ## What's next ? 
 Check out our [MedTech Documentation](https://docs.icure.com/sdks/quick-start/react-native-quick-start) and more particularly our [How To's](https://docs.icure.com/sdks/how-to/index), in order to start implementing new functionalities inside your React Native App ! 
+
+## Troubleshooting
+
+### App crashes at startup on Android
+
+To run this template on an Android emulator, ensure that your emulator is configured with a minimum of 6GB of RAM. 
+During development, RAM usage and bundle size can be exceptionally high due to the inclusion of debug symbols and
+additional resources by Expo. However, the released APK/AppBundle will be optimized and have a normal size, so this
+configuration is only necessary for the development phase
