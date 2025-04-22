@@ -37,7 +37,7 @@ Make sure the following tools are installed on your machine:
 - **Ruby**, same version than referenced in the `.ruby-version` file at the root of the template. 
 - **XCode**
 - **Android Studio**
-- **Android emulator/device with at least 6GB of RAM** (if you want to run the app on Android emulator) (see [Troubleshooting](#app-crashes-at-startup-on-android) for more details)
+- **Android emulator/device with at least 6GB of RAM** (see [Troubleshooting](#app-crashes-at-startup-on-android) for more details)
 
 *Note: XCode and Android Studio are needed in order to run your app on iPhone & Android emulators*
 
