@@ -70,6 +70,7 @@ Check out our [MedTech Documentation](https://docs.icure.com/sdks/quick-start/re
 ### App crashes at startup on Android
 
 To run this template on an Android emulator, ensure that your emulator is configured with a minimum of 6GB of RAM. The
-debug tooling provided by Expo and React Native can lead to higher memory consumption during development. This increased
-usage is specific to the development mode of the app, and the released APK/AppBundle will be optimized and have a normal
-size.
+development tooling provided by Expo and React Native can lead to higher memory consumption.
+
+This problem is specific to the development of the app: the released APK will have smaller size and reasonable memory
+consumption.
