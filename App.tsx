@@ -1,31 +1,14 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
-
 import React from 'react';
-import {ScrollView, StatusBar, Text, useColorScheme} from 'react-native';
+import {ScrollView, StatusBar, useColorScheme} from 'react-native';
 
 import {Router} from './navigation/Router';
 
 import {Provider} from 'react-redux';
 import {store} from './redux/store';
 
-import {polyfillWindowCryptoWithStrongRandom} from '@icure/expo-kryptom'
-import '@azure/core-asynciterator-polyfill'
-import {polyfillTextEncoder} from "./polyfills/TextEncoderPolyfill";
+import { polyfillFetch } from "./polyfills/FetchPolyfill";
 
-(window as any).crypto = global.crypto
-
-Buffer = require("@craftzdog/react-native-buffer").Buffer;
-
-polyfillWindowCryptoWithStrongRandom()
-polyfillTextEncoder()
+polyfillFetch()
 
 const App = () => {
 	const isDarkMode = useColorScheme() === 'dark';

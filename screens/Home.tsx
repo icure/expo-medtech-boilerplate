@@ -2,8 +2,6 @@ import React, {useCallback, useEffect} from 'react';
 import {Button, Image, Linking, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {useCreateOrUpdatePatientMutation, useLazyFilterPatientsQuery} from '../services/patientApi';
 import {Annotation, DecryptedPatient} from "@icure/cardinal-sdk";
-import {StrongRandom} from "@icure/expo-kryptom";
-
 
 export const Home = () => {
 	const openDoc = () => {
@@ -22,7 +20,7 @@ export const Home = () => {
 	const createRandomPatient = useCallback(async () => {
 		const createdPatient = await createOrUpdatePatient(
 			new DecryptedPatient({
-				id: StrongRandom.randomUUID(),
+				// id: StrongRandom.randomUUID(),
 				firstName: 'John',
 				lastName: 'Doe',
 			})
@@ -35,7 +33,6 @@ export const Home = () => {
 		return Array.from({length: numberOfPatient}).map(async () => {
 			return createOrUpdatePatient(
 				new DecryptedPatient({
-					id: StrongRandom.randomUUID(),
 					firstName: 'John',
 					lastName: 'Doe',
 					notes: [

@@ -4,7 +4,7 @@ import { ReadableStream } from "web-streams-polyfill";
 // @ts-ignore
 import { fetch as textStreamingFetch, Headers, Request, Response } from "react-native-fetch-api";
 
-const icureFetch = (input: string | URL | globalThis.Request, init?: RequestInit) => {
+const cardinalFetch = (input: string | URL | globalThis.Request, init?: RequestInit) => {
   // TODO use non-streaming fetch for non-text requests
   // if isTextRequest
   return textStreamingFetch(input, {
@@ -16,7 +16,7 @@ const icureFetch = (input: string | URL | globalThis.Request, init?: RequestInit
 }
 
 export function polyfillFetch() {
-  polyfillGlobal('fetch', () => icureFetch);
+  polyfillGlobal('fetch', () => cardinalFetch);
   polyfillGlobal('Headers', () => Headers);
   polyfillGlobal('Request', () => Request);
   polyfillGlobal('Response', () => Response);

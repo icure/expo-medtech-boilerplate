@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState} from 'react';
 import {View, Image, StyleSheet, ScrollView, Text} from 'react-native';
 import {useForm, Controller} from 'react-hook-form';
 
@@ -8,10 +8,9 @@ import { routes } from '../navigation/routes';
 
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import {completeAuthentication, setRegistrationInformation, setToken, startAuthentication} from '../services/api';
-import {addProgressListener} from "@icure/expo-kerberus";
 
 
-export const Register = (): JSX.Element => {
+export const Register = () => {
   const {
     control,
     handleSubmit,
@@ -32,13 +31,13 @@ export const Register = (): JSX.Element => {
   }));
 
 
-  useEffect(() => {
-    const subscription = addProgressListener(({ progress }) => {
-      setProgress(progress);
-    });
-
-    return () => subscription.remove();
-  }, [setProgress]);
+  // useEffect(() => {
+    // const subscription = addProgressListener(({ progress }) => {
+    //   setProgress(progress);
+    // });
+    //
+    // return () => subscription.remove();
+  // }, [setProgress]);
 
 
   useEffect(() => {
@@ -46,7 +45,7 @@ export const Register = (): JSX.Element => {
       navigate(routes.home);
     }
   }, [online, navigate]);
-  
+
   const [isWaitingForCode, setWaitingForCode] = useState(false);
 
   const onAskCode = (data: {userEmail: string; userFirstName: string; userLastName: string}) => {
