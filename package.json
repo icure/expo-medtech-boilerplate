@@ -10,7 +10,6 @@
     "cleanReinstallPods": "cd ios && rm -rf ~/Library/Caches/CocoaPods && rm -rf Pods && rm -rf ~/Library/Developer/Xcode/DerivedData/ && pod deintegrate && pod setup && pod install && cd .."
   },
   "dependencies": {
-    "@craftzdog/react-native-buffer": "^6.0.5",
     "@icure/cardinal-sdk": "2.0.0-PREVIEW-19",
     "@icure/nitro-kryptom": "^0.1.0",
     "@reduxjs/toolkit": "^2.7.0",
@@ -34,7 +33,6 @@
     "react-native-svg": "15.14.0",
     "react-redux": "^9.2.0",
     "react-router-native": "^6.30.0",
-    "text-encoding": "^0.7.0",
     "web-streams-polyfill": "^4.1.0"
   },
   "devDependencies": {
