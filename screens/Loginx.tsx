@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { View, TextInput, Button, Text, StyleSheet } from "react-native"
+import { View, TextInput, Text, StyleSheet, Pressable, Image, KeyboardAvoidingView, Platform } from "react-native"
 import * as Progress from "react-native-progress"
 import {useNavigate} from 'react-router-native'
 import {routes} from "../navigation/routes"
@@ -8,15 +8,17 @@ import {
   AuthenticationProcessTelecomType,
   CaptchaOptions,
   CardinalSdk,
-  Challenge, randomUuid,
+  Challenge,
   resolveChallenge
 } from "@icure/cardinal-sdk"
 import {nitroKryptomCryptoService} from "@icure/nitro-kryptom"
 import {AsyncStorageImpl} from "../utils/storage";
 import AuthenticationWithProcessStep = CardinalSdk.AuthenticationWithProcessStep;
 import {setupRelogin} from "../services/api";
+import {useAppDispatch} from "../redux/hooks";
 
 const EmailLoginScreen = () => {
+  const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
   const [email, setEmail] = useState("")
@@ -24,7 +26,6 @@ const EmailLoginScreen = () => {
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState<number | undefined>(undefined)
   const [authStep, setAuthStep] = useState<AuthenticationWithProcessStep | undefined>(undefined)
-
 
   const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email)
   const isValidCode = (code: string) => /^\d{6}$/.test(code)
@@ -82,7 +83,7 @@ const EmailLoginScreen = () => {
         setAuthStep(authenticationStep)
       } catch (err: any) {
         if (err.message) console.error(err.message)
-        Toast.show({ type: "error", visibilityTime: 1000, text1: "Failed to get start authentication", text2: err.message ?? "Unexpected error" })
+        Toast.show({ type: "error", visibilityTime: 1000, text1: "Failed to start authentication", text2: err.message ?? "Unexpected error" })
       }
     } finally {
       setLoading(false)
@@ -94,7 +95,7 @@ const EmailLoginScreen = () => {
     setLoading(true)
     try {
       const sdk = await authStep.completeAuthentication(code)
-      await setupRelogin(sdk) // TODO here
+      await dispatch(setupRelogin(sdk)).unwrap()
       navigate(routes.home)
     } catch (err: any) {
       if (err.message) console.error(err.message)
@@ -110,73 +111,257 @@ const EmailLoginScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <TextInput
-        style={[styles.input, loading && styles.disabled]}
-        placeholder="Email"
-        value={email}
-        editable={!loading && authStep == undefined}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-
-      {authStep != undefined && (
-        <TextInput
-          style={[styles.input, loading && styles.disabled]}
-          placeholder="Code"
-          value={code}
-          editable={!loading}
-          onChangeText={(text) => setCode(text.replace(/[^0-9]/g, "").slice(0, 6))}
-          keyboardType="numeric"
-          maxLength={6}
-        />
-      )}
-
-      <Progress.Bar progress={progress} indeterminate={progress==undefined} width={null} style={{ opacity: loading ? 1 : 0 }} />
-
-      {authStep == undefined && (
-        <Button
-          title="Request Code"
-          onPress={handleRequestCode}
-          disabled={!isValidEmail(email) || loading}
-        />
-      )}
-
-      {authStep != undefined && (
-        <>
-          <Button
-            title="Login"
-            onPress={handleLogin}
-            disabled={!isValidCode(code) || loading}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <View style={styles.innerContainer}>
+        {/* Logo Section */}
+        <View style={styles.logoContainer}>
+          <Image
+            style={styles.logo}
+            source={require('../assets/images/logo.png')}
           />
-          <View style={{ height: 8 }} />
-          <Button
-            title="Change Email"
-            onPress={handleChangeEmail}
-            disabled={loading}
-          />
-        </>
-      )}
-    </View>
+          <Text style={styles.title}>
+            {authStep ? "Enter Verification Code" : "Welcome Back"}
+          </Text>
+          <Text style={styles.subtitle}>
+            {authStep
+              ? `We sent a code to ${email}`
+              : "Sign in to continue to your account"
+            }
+          </Text>
+        </View>
+
+        {/* Input Section */}
+        <View style={styles.formContainer}>
+          {authStep == undefined ? (
+            <>
+              <Text style={styles.label}>Email Address</Text>
+              <TextInput
+                style={[styles.input, loading && styles.inputDisabled]}
+                placeholder="your.email@example.com"
+                placeholderTextColor="#999"
+                value={email}
+                editable={!loading}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </>
+          ) : (
+            <>
+              <Text style={styles.label}>Verification Code</Text>
+              <TextInput
+                style={[styles.input, styles.codeInput, loading && styles.inputDisabled]}
+                placeholder="000000"
+                placeholderTextColor="#999"
+                value={code}
+                editable={!loading}
+                onChangeText={(text) => setCode(text.replace(/[^0-9]/g, "").slice(0, 6))}
+                keyboardType="numeric"
+                maxLength={6}
+                autoFocus
+              />
+            </>
+          )}
+
+          {/* Progress Bar */}
+          {loading && (
+            <View style={styles.progressContainer}>
+              <Progress.Bar
+                progress={progress}
+                indeterminate={progress === undefined}
+                width={null}
+                color="#40908e"
+                unfilledColor="#E0E0E0"
+                borderWidth={0}
+                height={4}
+                borderRadius={2}
+              />
+            </View>
+          )}
+
+          {/* Buttons */}
+          {authStep == undefined ? (
+            <Pressable
+              style={({ pressed }) => [
+                styles.primaryButton,
+                (!isValidEmail(email) || loading) && styles.buttonDisabled,
+                pressed && styles.buttonPressed
+              ]}
+              onPress={handleRequestCode}
+              disabled={!isValidEmail(email) || loading}
+            >
+              <Text style={styles.primaryButtonText}>
+                {loading ? "Sending..." : "Request Code"}
+              </Text>
+            </Pressable>
+          ) : (
+            <>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.primaryButton,
+                  (!isValidCode(code) || loading) && styles.buttonDisabled,
+                  pressed && styles.buttonPressed
+                ]}
+                onPress={handleLogin}
+                disabled={!isValidCode(code) || loading}
+              >
+                <Text style={styles.primaryButtonText}>
+                  {loading ? "Verifying..." : "Login"}
+                </Text>
+              </Pressable>
+
+              <Pressable
+                style={({ pressed }) => [
+                  styles.secondaryButton,
+                  loading && styles.buttonDisabled,
+                  pressed && styles.buttonPressed
+                ]}
+                onPress={handleChangeEmail}
+                disabled={loading}
+              >
+                <Text style={styles.secondaryButtonText}>Change Email</Text>
+              </Pressable>
+            </>
+          )}
+        </View>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>
+            By continuing, you agree to our Terms & Privacy Policy
+          </Text>
+        </View>
+      </View>
+    </KeyboardAvoidingView>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#F8F9FA",
+  },
+  innerContainer: {
+    flex: 1,
+    justifyContent: "space-between",
+    paddingHorizontal: 24,
+    paddingVertical: 40,
+  },
+  logoContainer: {
+    alignItems: "center",
+    marginTop: 40,
+    marginBottom: 20,
+  },
+  logo: {
+    width: 160,
+    height: 60,
+    resizeMode: "contain",
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#333",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: 15,
+    color: "#666",
+    textAlign: "center",
+    lineHeight: 22,
+  },
+  formContainer: {
+    flex: 1,
     justifyContent: "center",
-    padding: 20,
+    maxWidth: 400,
+    width: "100%",
+    alignSelf: "center",
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 8,
   },
   input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 10,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1.5,
+    borderColor: "#E0E0E0",
+    padding: 16,
+    borderRadius: 12,
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
-  disabled: {
-    backgroundColor: "#f0f0f0",
+  codeInput: {
+    fontSize: 24,
+    fontWeight: "600",
+    textAlign: "center",
+    letterSpacing: 8,
+  },
+  inputDisabled: {
+    backgroundColor: "#F5F5F5",
+    color: "#999",
+  },
+  progressContainer: {
+    marginBottom: 20,
+    marginTop: -10,
+  },
+  primaryButton: {
+    backgroundColor: "#40908e",
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    marginBottom: 12,
+    shadowColor: "#40908e",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  primaryButtonText: {
+    color: "#FFFFFF",
+    fontSize: 17,
+    fontWeight: "700",
+  },
+  secondaryButton: {
+    backgroundColor: "transparent",
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    borderWidth: 1.5,
+    borderColor: "#40908e",
+  },
+  secondaryButtonText: {
+    color: "#40908e",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  buttonDisabled: {
+    opacity: 0.5,
+  },
+  buttonPressed: {
+    opacity: 0.7,
+    transform: [{ scale: 0.98 }],
+  },
+  footer: {
+    paddingTop: 20,
+    alignItems: "center",
+  },
+  footerText: {
+    fontSize: 12,
+    color: "#999",
+    textAlign: "center",
   },
 })
 

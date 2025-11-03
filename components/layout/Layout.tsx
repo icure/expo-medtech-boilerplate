@@ -1,9 +1,12 @@
 import React from 'react';
 import {View} from 'react-native';
 import {Outlet} from 'react-router-native';
+import {AuthGuard} from '../auth/AuthGuard';
 
 export const Layout = () => (
-  <View>
-    <Outlet />
-  </View>
+  <AuthGuard>
+    <View>
+      <Outlet />
+    </View>
+  </AuthGuard>
 );
