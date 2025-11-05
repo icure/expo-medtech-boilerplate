@@ -14,7 +14,7 @@ export const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children })
   const navigate = useNavigate();
   const location = useLocation();
   const [isChecking, setIsChecking] = useState(true);
-  const { token, user } = useAppSelector(state => state.cardinalApi);
+  const { token, userPojo } = useAppSelector(state => state.cardinalApi);
 
   useEffect(() => {
     const attemptAutoLogin = async () => {
@@ -22,11 +22,11 @@ export const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children })
         console.log('🔐 [AuthGuard] Checking authentication status...');
         console.log('🔐 [AuthGuard] Current location:', location.pathname);
         console.log('🔐 [AuthGuard] Token present:', !!token);
-        console.log('🔐 [AuthGuard] User present:', !!user);
+        console.log('🔐 [AuthGuard] User present:', !!userPojo);
 
         // If we have credentials and we're on the login page, try to auto-login
-        if (token && user) {
-          console.log('✅ [AuthGuard] Found saved credentials for user:', user.id);
+        if (token && userPojo) {
+          console.log('✅ [AuthGuard] Found saved credentials for user:', userPojo.id);
 
           try {
             await dispatch(relogin()).unwrap();

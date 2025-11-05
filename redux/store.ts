@@ -1,9 +1,20 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
-import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
+import {
+  persistStore,
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+  createTransform
+} from 'redux-persist';
 import { mmkvReduxStorage } from './persistence';
 import { patientApiRtk } from '../services/patientApi';
-import { api } from '../services/api';
+import {api, CardinalSdkState} from '../services/api';
+import {CardinalSdk, User} from "@icure/cardinal-sdk";
 
 // ============================================================================
 // Redux Persist Configuration

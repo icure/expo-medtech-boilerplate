@@ -5,12 +5,10 @@ import {nitroKryptomCryptoService} from '@icure/nitro-kryptom';
 import {AuthenticationMethod, CardinalSdk, randomUuid, User,} from "@icure/cardinal-sdk";
 import {AsyncStorageImpl} from "../utils/storage";
 
-type ReduxableUser = Pick<User, 'id' | 'groupId'>
-
 export type CardinalSdkState = {
 	tokenKey?: string;
 	token?: string;
-	user?: ReduxableUser;
+	userPojo?: any;
 }
 
 const initialState: CardinalSdkState = {}
@@ -36,12 +34,14 @@ export const logout = createAsyncThunk('cardinalApi/logout', async (_payload, {
 
 export const relogin = createAsyncThunk('cardinalApi/relogin', async (_, {getState}) => {
 	const {
-		cardinalApi: { user, token },
+		cardinalApi: { userPojo, token },
 	} = getState() as { cardinalApi: CardinalSdkState };
 
-	if (!token || !user) {
+	if (token == undefined || userPojo == undefined) {
 		throw new Error("Can't relogin");
 	}
+
+	const user = User.fromJSON(userPojo, false, ["ReduxState.user"])
 
 	apiCache[`${user.groupId}/${user.id}`] = await CardinalSdk.initialize(
 		undefined,
@@ -56,7 +56,19 @@ export const relogin = createAsyncThunk('cardinalApi/relogin', async (_, {getSta
 		}
 	);
 
-	return user;
+	return userPojo;
+});
+
+export const sdkProvider = createAsyncThunk('cardinalApi/sdk', async (_, {getState}) => {
+	const {
+		cardinalApi
+	} = getState() as { cardinalApi: CardinalSdkState };
+
+	const api = await getApiFromState(() => cardinalApi)
+
+	if (api == undefined) throw new Error("Sdk is not initialized")
+
+	return api;
 });
 
 export const setupRelogin = createAsyncThunk('cardinalApi/setupRelogin', async (sdk: CardinalSdk, {getState, dispatch}) => {
@@ -74,7 +86,7 @@ export const setupRelogin = createAsyncThunk('cardinalApi/setupRelogin', async (
 	apiCache[`${user.groupId}/${user.id}`] = sdk;
 	console.log('💾 [setupRelogin] Cached SDK for:', `${user.groupId}/${user.id}`);
 
-	const credentials = { user: { id: user.id, groupId: user.groupId }, token, tokenKey };
+	const credentials = { userPojo: user.toJSON(), token, tokenKey };
 	console.log('📦 [setupRelogin] Dispatching credentials:', JSON.stringify(credentials, null, 2));
 
 	dispatch(setReloginInfo(credentials))
@@ -88,16 +100,16 @@ export const api = createSlice({
 	reducers: {
 		setReloginInfo: (
 			state,
-			{ payload: { token, tokenKey, user } }: PayloadAction<{ token: string, tokenKey: string, user: ReduxableUser }>
+			{ payload: { token, tokenKey, userPojo } }: PayloadAction<{ token: string, tokenKey: string, userPojo: object }>
 		) => {
 			console.log('🔄 [setReloginInfo] Updating Redux state with credentials');
-			console.log('🔄 [setReloginInfo] User:', JSON.stringify(user));
+			console.log('🔄 [setReloginInfo] User:', JSON.stringify(userPojo));
 			console.log('🔄 [setReloginInfo] Token length:', token.length);
 			console.log('🔄 [setReloginInfo] TokenKey:', tokenKey);
 
 			state.token = token;
 			state.tokenKey = tokenKey;
-			state.user = user;
+			state.userPojo = userPojo;
 
 			console.log('✅ [setReloginInfo] Redux state updated');
 		},
@@ -108,7 +120,7 @@ export const api = createSlice({
 			console.log('🗑️  [deleteReloginInfo] Clearing credentials from Redux state');
 			if (state.token != undefined) delete state.token
 			if (state.tokenKey != undefined) delete state.tokenKey
-			if (state.user != undefined) delete state.user
+			if (state.userPojo != undefined) delete state.userPojo
 			console.log('✅ [deleteReloginInfo] Redux state cleared');
 		}
 	}
@@ -125,18 +137,22 @@ export const getApiFromState = async (getState: () => CardinalSdkState | {
 		throw new Error('No state found');
 	}
 	const cardinalApiState = 'cardinalApi' in state ? state.cardinalApi : state;
-	const {user} = cardinalApiState;
+	const {userPojo} = cardinalApiState;
 
-	if (!user) {
+	if (userPojo == undefined) {
 		return undefined;
 	}
+
+	const user = User.fromJSON(userPojo)
 
 	return apiCache[`${user.groupId}/${user.id}`];
 };
 
 export const currentUser = (getState: () => unknown) => {
 	const state = getState() as { cardinalApi: CardinalSdkState };
-	return state.cardinalApi.user;
+	const userPojo = state.cardinalApi.userPojo
+	if (userPojo == undefined) return undefined
+	return User.fromJSON(userPojo);
 };
 
 export const cardinalApi = async (getState: () => unknown) => {

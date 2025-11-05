@@ -53,3 +53,7 @@ scratch
 .scratch
 
 .packages
+
+# Can be recreated by prebuild
+ios
+android

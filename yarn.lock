@@ -1109,10 +1109,10 @@
     find-up "^5.0.0"
     js-yaml "^4.1.0"
 
-"@icure/cardinal-sdk@2.0.0-PREVIEW-20":
-  version "2.0.0-PREVIEW-20"
-  resolved "http://localhost:4873/@icure/cardinal-sdk/-/cardinal-sdk-2.0.0-PREVIEW-20.tgz#33406274574f7362323822781df69e5fbc7bcb1f"
-  integrity sha512-Tygl2YshRpRkkaVFgPusOL8Q9JAAhByVx2GB1SmeSpgCyP0wi5DetvtlUbnwRwirnVZQsBcAwBosM6svJCA9Xw==
+"@icure/cardinal-sdk@2.0.0-PREVIEW-20.2":
+  version "2.0.0-PREVIEW-20.2"
+  resolved "http://localhost:4873/@icure/cardinal-sdk/-/cardinal-sdk-2.0.0-PREVIEW-20.2.tgz#bb6581df505580475477b21e4e169efaf98455c3"
+  integrity sha512-laEqjHvr4ctAPVoDnVz5WUu8QWMf5RLAyzLcal9WjPYYdBwx5GHCvdtRcXNfqAYoJrkE/5LWK3gRehaVEFe10g==
   dependencies:
     "@js-joda/core" "3.2.0"
     ws "8.18.0"

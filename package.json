@@ -10,7 +10,7 @@
     "cleanReinstallPods": "cd ios && rm -rf ~/Library/Caches/CocoaPods && rm -rf Pods && rm -rf ~/Library/Developer/Xcode/DerivedData/ && pod deintegrate && pod setup && pod install && cd .."
   },
   "dependencies": {
-    "@icure/cardinal-sdk": "2.0.0-PREVIEW-20",
+    "@icure/cardinal-sdk": "2.0.0-PREVIEW-20.2",
     "@icure/nitro-kryptom": "0.1.0",
     "@reduxjs/toolkit": "^2.9.2",
     "expo": "^54.0.20",
