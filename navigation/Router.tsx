@@ -5,15 +5,14 @@ import {Layout} from '../components/layout/Layout';
 import {Home} from '../screens/Home';
 import {routes} from "./routes";
 import Toast from "react-native-toast-message";
-import Loginx from "../screens/Loginx";
+import Login from "../screens/Login";
 
 
 export const Router = () => (
   <NativeRouter>
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route index path={routes.login} element={<Loginx />} />
-        {/*<Route path={routes.register} element={<Register />} />*/}
+        <Route index path={routes.login} element={<Login />} />
         <Route path={routes.home} element={<Home />} />
       </Route>
     </Routes>
