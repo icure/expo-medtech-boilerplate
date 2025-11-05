@@ -1,273 +1,133 @@
-import {createAction, createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 
-import {
-	Aes,
-	Rsa,
-	Hmac,
-	StrongRandom,
-	Digest
-} from '@icure/expo-kryptom';
+import {nitroKryptomCryptoService} from '@icure/nitro-kryptom';
 
+import {AuthenticationMethod, CardinalSdk, randomUuid, User,} from "@icure/cardinal-sdk";
+import {MmkvStorageFacade} from "../utils/storage";
 
-import {setSavedCredentials} from '../config/state';
-
-import {FetchBaseQueryError} from '@reduxjs/toolkit/query';
-
-import {
-	AuthenticationMethod,
-	AuthenticationProcessTelecomType,
-	CaptchaOptions,
-	CardinalSdk, Challenge,
-	User
-} from "@icure/cardinal-sdk";
-import AuthenticationWithProcessStep = CardinalSdk.AuthenticationWithProcessStep;
-import {polyfillFetch} from "../polyfills/FetchPolyfill";
-import {resolveChallenge, Solution} from "@icure/expo-kerberus";
-import {AsyncStorageImpl} from "../utils/storage";
-
-export interface CardinalSdkState {
-	email?: string;
+export type CardinalSdkState = {
+	tokenKey?: string;
 	token?: string;
-	user?: User;
-	keyPair?: { publicKey: string; privateKey: string };
-	online: boolean;
-	invalidEmail: boolean;
-	invalidToken: boolean;
-	firstName?: string;
-	lastName?: string;
-	dateOfBirth?: number;
-	mobilePhone?: string;
-	kerberusProgress: number;
+	userPojo?: any;
 }
 
-const initialState: CardinalSdkState = {
-	email: undefined,
-	token: undefined,
-	user: undefined,
-	keyPair: undefined,
-	online: false,
-	invalidEmail: false,
-	invalidToken: false,
-	firstName: undefined,
-	lastName: undefined,
-	dateOfBirth: undefined,
-	mobilePhone: undefined,
-	kerberusProgress: 0,
-};
+const initialState: CardinalSdkState = {}
 
-let authProcess: AuthenticationWithProcessStep | undefined = undefined;
 const apiCache: Record<string, CardinalSdk> = {};
 
-const onKerberusProgress = createAction<number>('cardinalApi/onProgress');
-
-export const startAuthentication = createAsyncThunk('cardinalApi/startAuthentication', async (_payload, {getState, dispatch}) => {
-	const {
-		cardinalApi: {email, firstName, lastName},
-	} = getState() as { cardinalApi: CardinalSdkState };
-
-	if (!email) {
-		throw new Error('No email provided');
-	}
-
-	polyfillFetch()
-
-	let solution: Solution;
-
-	try {
-		const response = await fetch(`https://msg-gw.icure.cloud/${process.env.EXPO_PUBLIC_EXTERNAL_SERVICES_SPEC_ID}/challenge`, {
-			method: 'GET',
-			headers: {
-				Accept: 'application/json',
-				'Content-Type': 'application/json',
-			}
-		});
-
-		const challenge: Challenge = JSON.parse(await response.text());
-		console.log(challenge)
-
-		solution = await resolveChallenge(challenge, process.env.EXPO_PUBLIC_EXTERNAL_SERVICES_SPEC_ID!!);
-	} catch (e) {
-		console.error(`Couldn't get challenge: ${e}`)
-		throw e;
-	}
-
-	try {
-		const authenticationStep = await CardinalSdk.initializeWithProcess(
-			undefined,
-			"https://api.icure.cloud",
-			"https://msg-gw.icure.cloud",
-			process.env.EXPO_PUBLIC_EXTERNAL_SERVICES_SPEC_ID!!,
-			process.env.EXPO_PUBLIC_EMAIL_AUTHENTICATION_PROCESS_ID!!,
-			AuthenticationProcessTelecomType.Email,
-			email,
-			// new CaptchaOptions.Kerberus.Delegated({ onProgress: (progress) => dispatch(onKerberusProgress(progress)) }),
-			new CaptchaOptions.Kerberus.Computed({solution}),
-			new AsyncStorageImpl(),
-			{
-				firstName,
-				lastName
-			},
-			{
-				encryptedFields: {
-					patient: ["notes", "addresses"]
-				},
-				cryptoService: {
-					aes: Aes,
-					digest: Digest,
-					hmac: Hmac,
-					rsa: Rsa,
-					strongRandom: StrongRandom
-				} as any
-			}
-		)
-
-		authProcess = authenticationStep
-
-		return authenticationStep;
-	}
-	catch (e) {
-		console.error(`Couldn't start authentication: ${e}`)
-		throw e;
-	}
-
-});
-
-export const completeAuthentication = createAsyncThunk('cardinalApi/completeAuthentication', async (_payload, {
+export const logout = createAsyncThunk('cardinalApi/logout', async (_payload, {
 	getState,
 	dispatch
 }) => {
-	const {
-		cardinalApi: {token},
-	} = getState() as { cardinalApi: CardinalSdkState };
+	const { cardinalApi } = getState() as { cardinalApi: CardinalSdkState };
+	const sdk = await getApiFromState(() => cardinalApi)
 
-	if (!authProcess) {
-		throw new Error('No authProcess provided');
-	}
+	if (sdk == null) throw new Error("Can't logout, no SDK")
 
-	if (!token) {
-		throw new Error('No token provided');
-	}
+	// Clear Redux state
+	dispatch(deleteReloginInfo({}))
 
-	try {
-		const sdk = await authProcess.completeAuthentication(token);
-		const currentUser = await sdk.user.getCurrentUser();
-
-		authProcess = undefined;
-		apiCache[`${currentUser.groupId}/${currentUser.id}`] = sdk;
-
-		const longToken = await sdk.user.getToken(
-			currentUser.id,
-			'boilerplate-cardinal-sdk',
-			{
-				tokenValidity: 30 * 24 * 60 * 60
-			}
-		);
-
-		dispatch(setSavedCredentials({
-			login: `${currentUser.groupId}/${currentUser.id}`,
-			token: longToken,
-			tokenTimestamp: +Date.now()
-		}));
-
-		return currentUser;
-	} catch (e) {
-		console.error(`Couldn't complete authentication: ${e}`)
-		throw e;
-	}
+	// Clear persisted state using redux-persist
+	const { persistor } = await import('../redux/store')
+	await persistor.purge()
 });
 
-export const login = createAsyncThunk('cardinalApi/login', async (_, {getState}) => {
+export const relogin = createAsyncThunk('cardinalApi/relogin', async (_, {getState}) => {
 	const {
-		cardinalApi: {email, token},
+		cardinalApi: { userPojo, token },
 	} = getState() as { cardinalApi: CardinalSdkState };
 
-	if (!email) {
-		throw new Error('No email provided');
+	if (token == undefined || userPojo == undefined) {
+		throw new Error("Can't relogin");
 	}
 
-	if (!token) {
-		throw new Error('No token provided');
-	}
+	const user = User.fromJSON(userPojo, false, ["ReduxState.user"])
 
-	const api = await CardinalSdk.initialize(
+	apiCache[`${user.groupId}/${user.id}`] = await CardinalSdk.initialize(
 		undefined,
 		"https://api.icure.cloud",
-		new AuthenticationMethod.UsingCredentials.UsernameLongToken(email, token),
-		new AsyncStorageImpl(),
+		new AuthenticationMethod.UsingCredentials.UsernameLongToken(`${user.groupId}/${user.id}`, token),
+		new MmkvStorageFacade(),
 		{
 			encryptedFields: {
 				patient: ["notes", "addresses"]
 			},
-			cryptoService: {
-				aes: Aes,
-				digest: Digest,
-				hmac: Hmac,
-				rsa: Rsa,
-				strongRandom: StrongRandom
-			} as any
+			cryptoService: nitroKryptomCryptoService
 		}
-	)
+	);
 
-	const user = await api.user.getCurrentUser();
+	return userPojo;
+});
 
-	apiCache[`${user.groupId}/${user.id}`] = api;
+export const sdkProvider = createAsyncThunk('cardinalApi/sdk', async (_, {getState}) => {
+	const {
+		cardinalApi
+	} = getState() as { cardinalApi: CardinalSdkState };
 
-	return user;
+	const api = await getApiFromState(() => cardinalApi)
+
+	if (api == undefined) throw new Error("Sdk is not initialized")
+
+	return api;
+});
+
+export const setupRelogin = createAsyncThunk('cardinalApi/setupRelogin', async (sdk: CardinalSdk, {getState, dispatch}) => {
+	console.log('🔐 [setupRelogin] Starting relogin setup...');
+
+	const user = await sdk.user.getCurrentUser()
+	console.log('👤 [setupRelogin] Got current user:', user.id);
+
+	const tokenKey = randomUuid()
+	console.log('🔑 [setupRelogin] Generated token key:', tokenKey);
+
+	const token = await sdk.user.getToken(user.id, tokenKey, { tokenValidity: 60 * 60 * 24 * 14 })
+	console.log('🎫 [setupRelogin] Got token (length):', token.length);
+
+	apiCache[`${user.groupId}/${user.id}`] = sdk;
+	console.log('💾 [setupRelogin] Cached SDK for:', `${user.groupId}/${user.id}`);
+
+	const credentials = { userPojo: user.toJSON(), token, tokenKey };
+	console.log('📦 [setupRelogin] Dispatching credentials:', JSON.stringify(credentials, null, 2));
+
+	dispatch(setReloginInfo(credentials))
+
+	console.log('✅ [setupRelogin] Setup complete!');
 });
 
 export const api = createSlice({
 	name: 'cardinalApi',
 	initialState,
 	reducers: {
-		setRegistrationInformation: (state, {payload: {firstName, lastName, email}}: PayloadAction<{
-			firstName: string;
-			lastName: string;
-			email: string
-		}>) => {
-			state.firstName = firstName;
-			state.lastName = lastName;
-			state.email = email;
-		},
-		setToken: (state, {payload: {token}}: PayloadAction<{ token: string }>) => {
-			state.token = token;
-			state.invalidToken = false;
-		},
-		setEmail: (state, {payload: {email}}: PayloadAction<{ email: string }>) => {
-			state.email = email;
-			state.invalidEmail = false;
-		},
-	},
-	extraReducers: builder => {
-		builder.addCase(onKerberusProgress, (state, action) => {
-			state.kerberusProgress = action.payload;
-		})
-		builder.addCase(startAuthentication.fulfilled, (state, {payload: authProcess}) => {
+		setReloginInfo: (
+			state,
+			{ payload: { token, tokenKey, userPojo } }: PayloadAction<{ token: string, tokenKey: string, userPojo: object }>
+		) => {
+			console.log('🔄 [setReloginInfo] Updating Redux state with credentials');
+			console.log('🔄 [setReloginInfo] User:', JSON.stringify(userPojo));
+			console.log('🔄 [setReloginInfo] Token length:', token.length);
+			console.log('🔄 [setReloginInfo] TokenKey:', tokenKey);
 
-		});
-		builder.addCase(startAuthentication.rejected, (state, {}) => {
-			state.invalidEmail = true;
-		});
-		builder.addCase(completeAuthentication.fulfilled, (state, {payload: user}) => {
-			state.user = user as User;
-			state.online = true;
-		});
-		builder.addCase(completeAuthentication.rejected, (state, {}) => {
-			state.invalidToken = true;
-		});
-		builder.addCase(login.fulfilled, (state, {payload: user}) => {
-			state.user = user as User;
-			state.online = true;
-		});
-		builder.addCase(login.rejected, (state, {}) => {
-			state.invalidToken = true;
-			state.online = false;
-		});
-	},
+			state.token = token;
+			state.tokenKey = tokenKey;
+			state.userPojo = userPojo;
+
+			console.log('✅ [setReloginInfo] Redux state updated');
+		},
+		deleteReloginInfo: (
+			state,
+			{}: PayloadAction<{}>
+		) => {
+			console.log('🗑️  [deleteReloginInfo] Clearing credentials from Redux state');
+			if (state.token != undefined) delete state.token
+			if (state.tokenKey != undefined) delete state.tokenKey
+			if (state.userPojo != undefined) delete state.userPojo
+			console.log('✅ [deleteReloginInfo] Redux state cleared');
+		}
+	}
 });
 
-function getError(e: Error): FetchBaseQueryError {
-	return {status: 'CUSTOM_ERROR', error: e.message, data: undefined};
-}
+// Export actions for direct use
+export const { setReloginInfo, deleteReloginInfo } = api.actions;
 
 export const getApiFromState = async (getState: () => CardinalSdkState | {
 	cardinalApi: CardinalSdkState
@@ -277,25 +137,25 @@ export const getApiFromState = async (getState: () => CardinalSdkState | {
 		throw new Error('No state found');
 	}
 	const cardinalApiState = 'cardinalApi' in state ? state.cardinalApi : state;
-	const {user} = cardinalApiState;
+	const {userPojo} = cardinalApiState;
 
-	if (!user) {
+	if (userPojo == undefined) {
 		return undefined;
 	}
 
-	const cachedApi = apiCache[`${user.groupId}/${user.id}`];
+	const user = User.fromJSON(userPojo)
 
-	return cachedApi;
+	return apiCache[`${user.groupId}/${user.id}`];
 };
 
 export const currentUser = (getState: () => unknown) => {
 	const state = getState() as { cardinalApi: CardinalSdkState };
-	return state.cardinalApi.user;
+	const userPojo = state.cardinalApi.userPojo
+	if (userPojo == undefined) return undefined
+	return User.fromJSON(userPojo);
 };
 
 export const cardinalApi = async (getState: () => unknown) => {
 	const state = getState() as { cardinalApi: CardinalSdkState };
 	return await getApiFromState(() => state);
 };
-
-export const {setRegistrationInformation, setToken, setEmail} = api.actions;

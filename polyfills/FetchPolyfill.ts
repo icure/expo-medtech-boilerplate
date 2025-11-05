@@ -1,10 +1,9 @@
-// @ts-ignore
-import { polyfillGlobal } from 'react-native/Libraries/Utilities/PolyfillFunctions';
 import { ReadableStream } from "web-streams-polyfill";
 // @ts-ignore
 import { fetch as textStreamingFetch, Headers, Request, Response } from "react-native-fetch-api";
+import {defineLazyObjectProperty} from "./LazyValuePolyfill";
 
-const icureFetch = (input: string | URL | globalThis.Request, init?: RequestInit) => {
+const cardinalFetch = (input: string | URL | globalThis.Request, init?: RequestInit) => {
   // TODO use non-streaming fetch for non-text requests
   // if isTextRequest
   return textStreamingFetch(input, {
@@ -16,9 +15,9 @@ const icureFetch = (input: string | URL | globalThis.Request, init?: RequestInit
 }
 
 export function polyfillFetch() {
-  polyfillGlobal('fetch', () => icureFetch);
-  polyfillGlobal('Headers', () => Headers);
-  polyfillGlobal('Request', () => Request);
-  polyfillGlobal('Response', () => Response);
-  polyfillGlobal('ReadableStream', () => ReadableStream);
+  defineLazyObjectProperty(global, 'fetch', () => cardinalFetch);
+  defineLazyObjectProperty(global, 'Headers', () => Headers);
+  defineLazyObjectProperty(global, 'Request', () => Request);
+  defineLazyObjectProperty(global, 'Response', () => Response);
+  defineLazyObjectProperty(global, 'ReadableStream', () => ReadableStream);
 }

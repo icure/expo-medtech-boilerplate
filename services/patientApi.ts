@@ -9,7 +9,7 @@ export const patientApiRtk = createApi({
 		baseUrl: '/rest/v2/patient',
 	}),
 	endpoints: builder => ({
-		createOrUpdatePatient: builder.mutation<DecryptedPatient, DecryptedPatient>({
+		createOrUpdatePatient: builder.mutation<object, DecryptedPatient>({
 			async queryFn(patient, {getState}) {
 				const api = await cardinalApi(getState)
 
@@ -19,11 +19,11 @@ export const patientApiRtk = createApi({
 
 				const {patient: patientApi} = api
 				const createdPatient = await patientApi.createPatient(await patientApi.withEncryptionMetadata(patient));
-				return {data: createdPatient};
+				return {data: createdPatient.toJSON()};
 			},
-			invalidatesTags: (patient) => [{type: 'Patient', id: patient!.id}],
+			invalidatesTags: (patient) => [{type: 'Patient', id: (patient as any).id}],
 		}),
-		filterPatients: builder.query<Patient[], void>({
+		filterPatients: builder.query<object[], void>({
 			async queryFn(_, {getState}) {
 				const api = await cardinalApi(getState)
 
@@ -49,7 +49,7 @@ export const patientApiRtk = createApi({
 				console.log('Time to get all patients', end - start)
 				console.log('Got all patients', patients.length)
 
-				return {data: patients};
+				return {data: patients.map((p) => p.toJSON())};
 			},
 		}),
 	}),

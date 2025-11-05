@@ -51,3 +51,9 @@ scratch
 !.yarn/versions
 
 .scratch
+
+.packages
+
+# Can be recreated by prebuild
+ios
+android

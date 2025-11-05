@@ -1,3 +1,7 @@
+import { polyfillFetch } from "./polyfills/FetchPolyfill";
+
+polyfillFetch()
+
 import { registerRootComponent } from 'expo';
 
 import App from './App';
