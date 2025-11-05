@@ -12,7 +12,7 @@ import {
   resolveChallenge
 } from "@icure/cardinal-sdk"
 import {nitroKryptomCryptoService} from "@icure/nitro-kryptom"
-import {AsyncStorageImpl} from "../utils/storage";
+import {MmkvStorageFacade} from "../utils/storage";
 import AuthenticationWithProcessStep = CardinalSdk.AuthenticationWithProcessStep;
 import {setupRelogin} from "../services/api";
 import {useAppDispatch} from "../redux/hooks";
@@ -68,7 +68,7 @@ const EmailLoginScreen = () => {
           AuthenticationProcessTelecomType.Email,
           email,
           new CaptchaOptions.Kerberus.Computed({ solution: challengeSolution }),
-          new AsyncStorageImpl(),
+          new MmkvStorageFacade(),
           {
             firstName: "unknown",
             lastName: "unknown"

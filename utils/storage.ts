@@ -1,17 +1,17 @@
 import {MMKV} from 'react-native-mmkv';
 import {StorageFacade} from "@icure/cardinal-sdk";
 
-export class AsyncStorageImpl implements StorageFacade {
+export class MmkvStorageFacade implements StorageFacade {
 	storage = new MMKV();
-	setItem = (key: string, value: string) => {
-		return new Promise(resolve => resolve(this.storage.set(key, value))) as Promise<void>;
+	setItem = async (key: string, value: string) => {
+		return this.storage.set(key, value)
 	};
-	getItem = (key: string) => {
-		return new Promise(resolve => resolve(this.storage.getString(key))) as Promise<string | undefined>;
+	getItem = async (key: string) => {
+		return this.storage.getString(key)
 	};
-	removeItem = (key: string) => {
-		return new Promise(resolve => resolve(this.storage.delete(key))) as Promise<void>;
+	removeItem = async (key: string) => {
+		this.storage.delete(key)
 	};
 }
 
-export default new AsyncStorageImpl();
+export default new MmkvStorageFacade();

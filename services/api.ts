@@ -3,7 +3,7 @@ import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {nitroKryptomCryptoService} from '@icure/nitro-kryptom';
 
 import {AuthenticationMethod, CardinalSdk, randomUuid, User,} from "@icure/cardinal-sdk";
-import {AsyncStorageImpl} from "../utils/storage";
+import {MmkvStorageFacade} from "../utils/storage";
 
 export type CardinalSdkState = {
 	tokenKey?: string;
@@ -47,7 +47,7 @@ export const relogin = createAsyncThunk('cardinalApi/relogin', async (_, {getSta
 		undefined,
 		"https://api.icure.cloud",
 		new AuthenticationMethod.UsingCredentials.UsernameLongToken(`${user.groupId}/${user.id}`, token),
-		new AsyncStorageImpl(),
+		new MmkvStorageFacade(),
 		{
 			encryptedFields: {
 				patient: ["notes", "addresses"]
