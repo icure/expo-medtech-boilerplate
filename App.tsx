@@ -6,11 +6,7 @@ import {Router} from './navigation/Router';
 import {Provider} from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import {store, persistor} from './redux/store';
-
-import { polyfillFetch } from "./polyfills/FetchPolyfill";
 import { View, ActivityIndicator, Text } from 'react-native';
-
-polyfillFetch()
 
 const AppContent = () => {
 	const isDarkMode = useColorScheme() === 'dark';
