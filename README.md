@@ -13,6 +13,7 @@ Using gh cli
 
 ```bash
 gh repo create MyMedTechApp --template icure/expo-medtech-boilerplate --private
+git clone https://github.com/<me>/MyMedTechApp
 ```
 
 or using GitHub web interface
